@@ -1,59 +1,56 @@
 <script>
-	import Counter from './Counter.svelte';
-	import welcome from '$lib/images/svelte-welcome.webp';
-	import welcome_fallback from '$lib/images/svelte-welcome.png';
+	let fullData = [];
+	let songInfo = {};
+	let artistInfo = {};
+	let earliestDate;
+	let latestDate;
+	function onUpload(event) {
+		fullData = []
+		const files = event.target.files
+		for (const file of files){
+			const reader = new FileReader();
+			reader.onload = onReaderLoad;
+			reader.readAsText(file);
+		}
+		fullData.sort((a, b) => a.date - b.date)
+		
+		$: console.log(fullData)
+		$: console.log(fullData.length)
+		const firstTrackDate = fullData[0].date
+		const lastTrackDate = fullData[fullData.length - 1].date
+		earliestDate = new Date(firstTrackDate.getFullYear(), firstTrackDate.getMonth(), firstTrackDate.getDay())
+		earliestDate = new Date(lastTrackDate.getFullYear(), lastTrackDate.getMonth(), lastTrackDate.getDay())
+
+		updateData()
+	}
+
+	function onReaderLoad(event){
+		const fileInfo = JSON.parse(event.target.result);
+		for (const info of fileInfo){
+			//spotify only counts a play as 30+ seconds
+			if(info.msPlayed >= 30000){
+				fullData.push({"date": new Date(info.endTime), "artist": info.artistName, "track": info.trackName, "duration": info.msPlayed})
+				$: console.log(fullData.length)
+			}
+		}
+	}
+
+	function updateData(){
+		artistInfo = {}
+		for (const info of fullData){
+			if(info.artist in artistInfo){
+				artistInfo[info.artist].plays += 1
+				artistInfo[info.artist].time += info.duration
+			}else{
+				artistInfo[info.artist] = {"plays": 1, "time": info.duration}
+			}
+		}
+		$: console.log(artistInfo)
+	}
 </script>
 
-<svelte:head>
-	<title>Home</title>
-	<meta name="description" content="Svelte demo app" />
-</svelte:head>
-
-<section>
-	<h1>
-		<span class="welcome">
-			<picture>
-				<source srcset={welcome} type="image/webp" />
-				<img src={welcome_fallback} alt="Welcome" />
-			</picture>
-		</span>
-
-		to your new<br />SvelteKit app
-	</h1>
-
-	<h2>
-		try editing <strong>src/routes/+page.svelte</strong>
-	</h2>
-
-	<Counter />
-</section>
-
+<label for='files'>Choose JSON file(s)</label>
+<input type='file' on:change={onUpload} accept='.json' multiple>
 <style>
-	section {
-		display: flex;
-		flex-direction: column;
-		justify-content: center;
-		align-items: center;
-		flex: 0.6;
-	}
-
-	h1 {
-		width: 100%;
-	}
-
-	.welcome {
-		display: block;
-		position: relative;
-		width: 100%;
-		height: 0;
-		padding: 0 0 calc(100% * 495 / 2048) 0;
-	}
-
-	.welcome img {
-		position: absolute;
-		width: 100%;
-		height: 100%;
-		top: 0;
-		display: block;
-	}
+	
 </style>
