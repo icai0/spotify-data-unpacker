@@ -1,8 +1,8 @@
 <script>
 	let fullData = []
 	let boundData = []
-	let songInfo = {}
-	let artistInfo = {}
+	let songInfo = new Map()
+	let artistInfo = new Map()
 	let earliestDate
 	let latestDate
 	let startDate
@@ -16,6 +16,7 @@
 	let currentOrder = orders.PLAYS
 
 	let showPlays = true
+	let showDuration = true
 
 	async function onUpload(event) {
 		fullData = []
@@ -37,7 +38,6 @@
 		const lastTrackDate = fullData[fullData.length - 1].date
 		startDate = earliestDate = new Date(firstTrackDate.getFullYear(), firstTrackDate.getMonth(), firstTrackDate.getDate(), 0, 0, 0)
 		endDate = latestDate = new Date(lastTrackDate.getFullYear(), lastTrackDate.getMonth(), lastTrackDate.getDate(), 23, 59, 59)
-
 		updateData()
 	}
 
@@ -53,48 +53,44 @@
 
 	function updateData(){
 		restrictData()
-		songInfo = {}
-		artistInfo = {}
+		currentOrder = orders.DURATION
+		showPlays = true
+		showDuration = true
+		songInfo = new Map()
+		artistInfo = new Map()
 		totalTime = 0
+
 		for (const info of boundData){
 			totalTime += info.duration
 
-			//songs with multiple artists
-			if(Array.isArray(info.artist)){
-				for(const artist in info.artist){
-					if(artist in artistInfo){
-						artistInfo[artist].plays += 1
-						artistInfo[artist].time += info.duration
-					}else{
-						artistInfo[artist] = {"plays": 1, "time": info.duration}
-					}
-				}
+			if(artistInfo.has(info.artist)){
+				artistInfo.set(info.artist, {"plays": artistInfo.get(info.artist).plays + 1, "time": artistInfo.get(info.artist).time + info.duration})
 			}else{
-				if(info.artist in artistInfo){
-					artistInfo[info.artist].plays += 1
-					artistInfo[info.artist].time += info.duration
-				}else{
-					artistInfo[info.artist] = {"plays": 1, "time": info.duration}
-				}
+				artistInfo.set(info.artist, {"plays": 1, "time": info.duration})
 			}
-			if(info.track in songInfo){
-				songInfo[info.track].plays += 1
-				songInfo[info.track].time += info.duration
+			if(songInfo.has(info.track)){
+				songInfo.set(info.track, {"plays": songInfo.get(info.track).plays + 1, "time": songInfo.get(info.track).time + info.duration, "artist": info.artist})
 			}else{
-				songInfo[info.track] = {"plays": 1, "time": info.duration}
+				songInfo.set(info.track, {"plays": 1, "time": info.duration, "artist": info.artist})
 			}
 		}
-		$: console.log(fullData)
+
+		reorderData()
 		$: console.log(boundData)
+	}
+
+	function reorderData(){
+		if(currentOrder == orders.PLAYS){
+			artistInfo = Array.from(artistInfo).sort((a,b) => b[1].plays - a[1].plays)
+			songInfo = Array.from(songInfo).sort((a,b) => b[1].plays - a[1].plays)
+		}else{
+			artistInfo = Array.from(artistInfo).sort((a,b) => b[1].time - a[1].time)
+			songInfo = Array.from(songInfo).sort((a,b) => b[1].time - a[1].time)
+		}
 	}
 
 	function restrictData(){
 		boundData = []
-		$: console.log(startDate)
-		$: console.log(fullData[0].date)
-
-		$: console.log(endDate)
-		$: console.log(fullData[fullData.length - 1].date)
 		for (var i = 0; i < fullData.length; i++){
 			if (fullData[i].date >= startDate){
 				break;
