@@ -8,6 +8,15 @@
 	let startDate
 	let endDate
 	let totalTime = 0
+
+	const orders = Object.freeze({
+		PLAYS: 0,
+		DURATION: 1
+	})
+	let currentOrder = orders.PLAYS
+
+	let showPlays = true
+
 	async function onUpload(event) {
 		fullData = []
 		const files = event.target.files
@@ -17,17 +26,17 @@
 			reader.onload = onReaderLoad
 			reader.readAsText(file)
 		}
-		fullData.sort((a, b) => a.date - b.date)
 
 		//definitely not the way to do this but I tried the normal ways and gave up
 		await new Promise(resolve => setTimeout(resolve, 1000))
 
+		fullData.sort((a, b) => a.date.getTime() - b.date.getTime())
+
 		//reset bounds to full data when uploading files
 		const firstTrackDate = fullData[0].date
 		const lastTrackDate = fullData[fullData.length - 1].date
-		startDate = earliestDate = new Date(firstTrackDate.getFullYear(), firstTrackDate.getMonth(), firstTrackDate.getDay(), "00:00:01")
-		endDate = latestDate = new Date(lastTrackDate.getFullYear(), lastTrackDate.getMonth(), lastTrackDate.getDay(), "23:59:59")
-		boundData = fullData
+		startDate = earliestDate = new Date(firstTrackDate.getFullYear(), firstTrackDate.getMonth(), firstTrackDate.getDate(), 0, 0, 0)
+		endDate = latestDate = new Date(lastTrackDate.getFullYear(), lastTrackDate.getMonth(), lastTrackDate.getDate(), 23, 59, 59)
 
 		updateData()
 	}
@@ -47,7 +56,7 @@
 		songInfo = {}
 		artistInfo = {}
 		totalTime = 0
-		for (const info of fullData){
+		for (const info of boundData){
 			totalTime += info.duration
 
 			//songs with multiple artists
@@ -75,11 +84,29 @@
 				songInfo[info.track] = {"plays": 1, "time": info.duration}
 			}
 		}
-		$: console.log(songInfo)
+		$: console.log(fullData)
+		$: console.log(boundData)
 	}
 
 	function restrictData(){
-		//restrict data within the set dates
+		boundData = []
+		$: console.log(startDate)
+		$: console.log(fullData[0].date)
+
+		$: console.log(endDate)
+		$: console.log(fullData[fullData.length - 1].date)
+		for (var i = 0; i < fullData.length; i++){
+			if (fullData[i].date >= startDate){
+				break;
+			}
+		}
+		for (let j = i; j < fullData.length; j++){
+			if(fullData[j].date <= endDate){
+				boundData.push(fullData[j])
+			}else{
+				break;
+			}
+		}
 	}
 </script>
 
