@@ -130,20 +130,127 @@
 	function dateToInput(date){
 		return date.toISOString().split("T")[0]
 	}
+
+	function msToTime(ms){
+		let seconds = ms/1000
+		let minutes = seconds/60
+		let hours = Math.floor(minutes/60)
+		minutes = Math.floor(minutes%60)
+		return hours + " Hours " + minutes + " Minutes"
+	}
 </script>
 
-<label for='files'>Choose JSON file(s)</label>
-<input type='file' on:change={onUpload} accept='.json' multiple>
 
-{#if displayData}
-<br>
-<label for='start'>Start date:</label>
-<input type='date' bind:value={startDateInput} on:change={updateData} min={dateToInput(earliestDate)} max={endDateInput}>
-<br>
-<label for='end'>End date:</label>
-<input type='date' bind:value={endDateInput} on:change={updateData} min={startDateInput} max={dateToInput(latestDate)}>
-{/if}
+<div class='content'>
+	<h1>Spotify Data Unpacker</h1>
+	<div class='file-input'>
+		<label for='files'>Choose JSON file(s):</label>
+		<input type='file' on:change={onUpload} accept='.json' multiple>
+	</div>
+	{#if displayData}
+		<div class='options'>
+			<div class='option-section'>
+				<label for='start'>Start date: </label>
+				<input type='date' bind:value={startDateInput} on:change={updateData} min={dateToInput(earliestDate)} max={endDateInput}>
+			</div>
+			<div class='option-section'>
+				<label for='end'>End date: </label>
+				<input type='date' bind:value={endDateInput} on:change={updateData} min={startDateInput} max={dateToInput(latestDate)}>
+			</div>
+			<div class='option-section'>
+				<label for='plays'>Show Plays:</label>
+				<input type='checkbox' bind:checked={showPlays}/>
+			</div>
+			<div class='option-section'>
+				<label for='time'>Show Time:</label>
+				<input type='checkbox' bind:checked={showDuration}/>
+			</div>
+			<div class='option-section'>
+				<h4>{msToTime(totalTime)}</h4>
+			</div>
+			<div class='option-section'>
+				<h4>{boundData.length + " Plays"}</h4>
+			</div>
+		</div>
+	{/if}
+</div>
+
 
 <style>
-	
+	:global(body){
+		margin: 0;
+		width: 100%;
+		height: 1500px;
+	}
+	.content {
+		width: 100%;
+		height: 100%;
+		margin: 0;
+		background-color: black;
+		display: flex;
+		flex-direction: column;
+		align-items: center;
+	}
+	h1 {
+		color:rgb(30, 215, 96);
+		font-family: Verdana;
+		margin-bottom: 10px;
+	}
+	h4 {
+		color: rgb(255, 255, 255);
+		font-family: Verdana;
+		font-weight: 200;
+		margin: 0;
+		margin-top: 5px;
+		margin-bottom: 5px;
+	}
+	label {
+		color: rgb(255, 255, 255);
+		font-family: Verdana;
+		margin-top: 5px;
+		margin-bottom: 5px;
+		margin-right: 2px;
+	}
+	.file-input {
+		border: 2px;
+		border-style: solid;
+		border-color: rgb(30, 215, 96);
+		border-radius: 5px;
+		font-family: Verdana;
+		margin-top: 5px;
+		margin-bottom: 10px;
+		background-color: rgb(53, 53, 53);
+		padding: 5px;
+	}
+	input {
+		border: 1px;
+		border-style: solid;
+		border-color: rgb(30, 215, 96);
+		border-radius: 5px;
+		width: auto;
+		background-color: black;
+		color: rgb(30, 215, 96);
+		accent-color: rgb(30, 215, 96);
+	}
+	.options {
+		border: 2px;
+		border-style: solid;
+		border-color: rgb(30, 215, 96);
+		border-radius: 10px;
+		background-color: rgb(53, 53, 53);
+		padding: 5px;
+		margin: 10px;
+		display: flex;
+		flex-direction: row;
+		flex-wrap: wrap;
+		width: 500px;
+	}
+	.option-section {
+		width: 50%;
+		align-content: center;
+		display: flex;
+		flex-direction: row;
+		align-items: center;
+		justify-content: center;
+	}
 </style>
