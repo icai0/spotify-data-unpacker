@@ -77,7 +77,7 @@
 
 		restrictData()
 
-		currentOrder = orders.DURATION
+		currentOrder = orders.PLAYS
 		songInfo = new Map()
 		artistInfo = new Map()
 		totalTime = 0
@@ -172,6 +172,19 @@
 				<h4>{boundData.length + " Plays"}</h4>
 			</div>
 		</div>
+		<div class='info-container'>
+			<h2 class='info-title'>Top Artists</h2>
+			{#each artistInfo as [artist, data], i}
+				<div class='info-box'>
+					<div class='info-text'>
+					<h4 class='info-subject'>{artist}</h4>
+					<h4>{data.plays} Plays</h4>
+					<h4>{msToTime(data.time)}</h4>
+					</div>
+					<h1 class='rank-text'>#{i+1}</h1>
+				</div>
+			{/each}
+		</div>
 	{/if}
 </div>
 
@@ -252,5 +265,58 @@
 		flex-direction: row;
 		align-items: center;
 		justify-content: center;
+	}
+	.info-container {
+		border: 2px;
+		border-style: solid;
+		border-color: rgb(30, 215, 96);
+		border-radius: 10px;
+		background-color: rgb(53, 53, 53);
+		padding: 5px;
+		margin: 10px;
+		display: flex;
+		flex-direction: column;
+		width: 300px;
+		height: 447px;
+		overflow: scroll;
+	}
+	.info-box{
+		width: 100%;
+		border: 1px;
+		border-style: solid;
+		border-color: rgb(30, 215, 96);
+		border-radius: 5px;
+		width: auto;
+		background-color: black;
+		margin-bottom: 5px;
+		margin-left: 5px;
+		margin-right: 5px;
+		display: flex;
+		flex-direction: row;
+		justify-content: space-between;
+	}
+	.info-title{
+		color:white;
+		font-family: Verdana;
+		margin: 0;
+		margin-bottom: 5px;
+		text-align: center;
+	}
+	.rank-text{
+		color:rgb(30, 215, 96);
+		font-family: Verdana;
+		margin: 0;
+		margin-right: 5px;
+	}
+	.info-text{
+		margin-left: 5px;
+	}
+	.info-subject {
+		color: rgb(30, 215, 96);
+		font-family: Verdana;
+		font-weight: 200;
+		margin: 0;
+		margin-top: 5px;
+		margin-bottom: 5px;
 	}
 </style>
