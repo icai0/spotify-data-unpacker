@@ -166,24 +166,56 @@
 				<input type='checkbox' bind:checked={showDuration}/>
 			</div>
 			<div class='option-section'>
-				<h4>{msToTime(totalTime)}</h4>
+				<h4 class='option-text'>{msToTime(totalTime)}</h4>
 			</div>
 			<div class='option-section'>
-				<h4>{boundData.length + " Plays"}</h4>
+				<h4 class='option-text'>{boundData.length + " Plays"}</h4>
+			</div>
+			<div class='option-section' id='order-section'>
+				<button class='order-button' id='left-button' class:selected-order={currentOrder == orders.PLAYS} on:click={() => currentOrder = orders.PLAYS} on:click={reorderData}>
+					Plays
+				</button>
+				<button class='order-button' id='right-button' class:selected-order={currentOrder == orders.DURATION} on:click={() => currentOrder = orders.DURATION} on:click={reorderData}>
+					Time
+				</button>
 			</div>
 		</div>
-		<div class='info-container'>
-			<h2 class='info-title'>Top Artists</h2>
-			{#each artistInfo as [artist, data], i}
-				<div class='info-box'>
-					<div class='info-text'>
-					<h4 class='info-subject'>{artist}</h4>
-					<h4>{data.plays} Plays</h4>
-					<h4>{msToTime(data.time)}</h4>
+		<div class='info-area'>
+			<div class='info-container'>
+				<h2 class='info-title'>Top Artists</h2>
+				{#each artistInfo as [artist, data], i}
+					<div class='info-box'>
+						<div class='info-text'>
+						<h4 class='info-subject'>{artist}</h4>
+						{#if showPlays}
+							<h4>{data.plays} Plays</h4>
+						{/if}
+						{#if showDuration}
+							<h4>{msToTime(data.time)}</h4>
+						{/if}
+						</div>
+						<h1 class='rank-text'>#{i+1}</h1>
 					</div>
-					<h1 class='rank-text'>#{i+1}</h1>
-				</div>
-			{/each}
+				{/each}
+			</div>
+			<div class='info-container'>
+				<h2 class='info-title'>Top Songs</h2>
+				{#each songInfo as [song, data], i}
+					<div class='info-box'>
+						<div class='info-text'>
+						<h4 class='info-subject'>{song}</h4>
+						<h4 class='info-subject'>{data.artist}</h4>
+						{#if showPlays}
+							<h4>{data.plays} Plays</h4>
+						{/if}
+						{#if showDuration}
+							<h4>{msToTime(data.time)}</h4>
+						{/if}
+						</div>
+						<h1 class='rank-text'>#{i+1}</h1>
+					</div>
+				{/each}
+			</div>
 		</div>
 	{/if}
 </div>
@@ -208,6 +240,7 @@
 		color:rgb(30, 215, 96);
 		font-family: Verdana;
 		margin-bottom: 10px;
+		text-align: center;
 	}
 	h4 {
 		color: rgb(255, 255, 255);
@@ -217,12 +250,22 @@
 		margin-top: 5px;
 		margin-bottom: 5px;
 	}
+	.option-text {
+		color: rgb(255, 255, 255);
+		font-family: Verdana;
+		font-weight: 200;
+		margin: 0;
+		margin-top: 5px;
+		margin-bottom: 5px;
+		text-align: center;
+	}
 	label {
 		color: rgb(255, 255, 255);
 		font-family: Verdana;
 		margin-top: 5px;
 		margin-bottom: 5px;
 		margin-right: 2px;
+		text-align: center;
 	}
 	.file-input {
 		border: 2px;
@@ -234,6 +277,11 @@
 		margin-bottom: 10px;
 		background-color: rgb(53, 53, 53);
 		padding: 5px;
+		display: flex;
+		flex-direction: row;
+		flex-wrap: wrap;
+		justify-content: center;
+		align-items:center;
 	}
 	input {
 		border: 1px;
@@ -244,6 +292,7 @@
 		background-color: black;
 		color: rgb(30, 215, 96);
 		accent-color: rgb(30, 215, 96);
+		height: 22px;
 	}
 	.options {
 		border: 2px;
@@ -256,7 +305,7 @@
 		display: flex;
 		flex-direction: row;
 		flex-wrap: wrap;
-		width: 500px;
+		width: min(500px, 90%);
 	}
 	.option-section {
 		width: 50%;
@@ -273,11 +322,10 @@
 		border-radius: 10px;
 		background-color: rgb(53, 53, 53);
 		padding: 5px;
-		margin: 10px;
 		display: flex;
 		flex-direction: column;
-		width: 300px;
-		height: 447px;
+		width: 48%;
+		height: 500px;
 		overflow: scroll;
 	}
 	.info-box{
@@ -318,5 +366,35 @@
 		margin: 0;
 		margin-top: 5px;
 		margin-bottom: 5px;
+	}
+	.info-area {
+		display: flex;
+		flex-direction: row;
+		justify-content: space-between;
+		width: 90%;
+	}
+	.order-button{
+		width: 50px;
+		height: 30px;
+		margin: 0;
+		background: black;
+		border-color: rgb(30, 215, 96);
+		border-style: solid;
+		color: rgb(30, 215, 96);
+		text-align: center;
+	}
+	#left-button{
+		border-top-left-radius: 5px;
+		border-bottom-left-radius: 5px;
+	}
+	#right-button{
+		border-top-right-radius: 5px;
+		border-bottom-right-radius: 5px;
+	}
+	.selected-order{
+		background: rgb(0, 75, 0);
+	}
+	#order-section{
+		width: 100%;
 	}
 </style>
