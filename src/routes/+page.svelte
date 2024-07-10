@@ -27,6 +27,8 @@
 
 	let displayData = false
 
+	let showHelpMenu = false;
+
 	async function onUpload(event) {
 		fullData = []
 		const files = event.target.files
@@ -98,7 +100,6 @@
 		}
 
 		reorderData()
-		$: console.log(boundData)
 	}
 
 	function reorderData(){
@@ -140,83 +141,103 @@
 	}
 </script>
 
+<svelte:head>         
+	<title>Spotify Data Unpacker</title>
+	<meta name="description" content="Unpack and read your downloaded Spotify data"/>
+	<meta name="author" content="Ivan Cai">
+</svelte:head>
 
 <div class='content'>
-	<h1>Spotify Data Unpacker</h1>
-	<div class='file-input'>
-		<label for='files'>Choose JSON file(s):</label>
-		<input type='file' on:change={onUpload} accept='.json' multiple>
-	</div>
-	{#if displayData}
-		<div class='options'>
-			<div class='option-section'>
-				<label for='start'>Start date: </label>
-				<input type='date' bind:value={startDateInput} on:change={updateData} min={dateToInput(earliestDate)} max={endDateInput}>
-			</div>
-			<div class='option-section'>
-				<label for='end'>End date: </label>
-				<input type='date' bind:value={endDateInput} on:change={updateData} min={startDateInput} max={dateToInput(latestDate)}>
-			</div>
-			<div class='option-section'>
-				<label for='plays'>Show Plays:</label>
-				<input type='checkbox' bind:checked={showPlays}/>
-			</div>
-			<div class='option-section'>
-				<label for='time'>Show Time:</label>
-				<input type='checkbox' bind:checked={showDuration}/>
-			</div>
-			<div class='option-section'>
-				<h4 class='option-text'>{msToTime(totalTime)}</h4>
-			</div>
-			<div class='option-section'>
-				<h4 class='option-text'>{boundData.length + " Plays"}</h4>
-			</div>
-			<div class='option-section' id='order-section'>
-				<button class='order-button' id='left-button' class:selected-order={currentOrder == orders.PLAYS} on:click={() => currentOrder = orders.PLAYS} on:click={reorderData}>
-					Plays
-				</button>
-				<button class='order-button' id='right-button' class:selected-order={currentOrder == orders.DURATION} on:click={() => currentOrder = orders.DURATION} on:click={reorderData}>
-					Time
-				</button>
-			</div>
+	{#if showHelpMenu}
+		<div class='help-box'>
+			<button class='exit-help' on:click={() => showHelpMenu = false}>×</button>
+			<h4>1) Access your Spotify account page</h4>
+			<img src='/step 1.webp' style='width:150px'>
+			<h4>2) Go into Privacy Settings</h4>
+			<img src='/step 2.webp' style='width:min(500px,90%)'>
+			<h4>3) Request your account data</h4>
+			<img src='/step 3.webp' style='width:min(500px,90%)'>
+			<h4>4) After you download and unzip your data, select the JSON(s) named "StreamingHistory_Music_..."</h4>
+			<img src='/step 4.png' style= 'width:200px'>
 		</div>
-		<div class='info-area'>
-			<div class='info-container'>
-				<h2 class='info-title'>Top Artists</h2>
-				{#each artistInfo as [artist, data], i}
-					<div class='info-box'>
-						<div class='info-text'>
-						<h4 class='info-subject'>{artist}</h4>
-						{#if showPlays}
-							<h4>{data.plays} Plays</h4>
-						{/if}
-						{#if showDuration}
-							<h4>{msToTime(data.time)}</h4>
-						{/if}
-						</div>
-						<h1 class='rank-text'>#{i+1}</h1>
-					</div>
-				{/each}
-			</div>
-			<div class='info-container'>
-				<h2 class='info-title'>Top Songs</h2>
-				{#each songInfo as [song, data], i}
-					<div class='info-box'>
-						<div class='info-text'>
-						<h4 class='info-subject'>{song}</h4>
-						<h4 class='info-subject'>{data.artist}</h4>
-						{#if showPlays}
-							<h4>{data.plays} Plays</h4>
-						{/if}
-						{#if showDuration}
-							<h4>{msToTime(data.time)}</h4>
-						{/if}
-						</div>
-						<h1 class='rank-text'>#{i+1}</h1>
-					</div>
-				{/each}
-			</div>
+	{:else}
+		<h1>Spotify Data Unpacker</h1>
+		<div class='file-input'>
+			<label for='files'>Choose JSON file(s):</label>
+			<input type='file' on:change={onUpload} accept='.json' multiple>
+			<button class='help-button' on:click={() => showHelpMenu = true}>?</button>
 		</div>
+		{#if displayData}
+			<div class='options'>
+				<div class='option-section'>
+					<label for='start'>Start date: </label>
+					<input type='date' bind:value={startDateInput} on:change={updateData} min={dateToInput(earliestDate)} max={endDateInput}>
+				</div>
+				<div class='option-section'>
+					<label for='end'>End date: </label>
+					<input type='date' bind:value={endDateInput} on:change={updateData} min={startDateInput} max={dateToInput(latestDate)}>
+				</div>
+				<div class='option-section'>
+					<label for='plays'>Show Plays:</label>
+					<input type='checkbox' bind:checked={showPlays}/>
+				</div>
+				<div class='option-section'>
+					<label for='time'>Show Time:</label>
+					<input type='checkbox' bind:checked={showDuration}/>
+				</div>
+				<div class='option-section'>
+					<h4 class='option-text'>{msToTime(totalTime)}</h4>
+				</div>
+				<div class='option-section'>
+					<h4 class='option-text'>{boundData.length + " Plays"}</h4>
+				</div>
+				<div class='option-section' id='order-section'>
+					<button class='order-button' id='left-button' class:selected-order={currentOrder == orders.PLAYS} on:click={() => currentOrder = orders.PLAYS} on:click={reorderData}>
+						Plays
+					</button>
+					<button class='order-button' id='right-button' class:selected-order={currentOrder == orders.DURATION} on:click={() => currentOrder = orders.DURATION} on:click={reorderData}>
+						Time
+					</button>
+				</div>
+			</div>
+			<div class='info-area'>
+				<div class='info-container'>
+					<h2 class='info-title'>Top Artists</h2>
+					{#each artistInfo as [artist, data], i}
+						<div class='info-box'>
+							<div class='info-text'>
+							<h4 class='info-subject'>{artist}</h4>
+							{#if showPlays}
+								<h4>{data.plays} Plays</h4>
+							{/if}
+							{#if showDuration}
+								<h4>{msToTime(data.time)}</h4>
+							{/if}
+							</div>
+							<h1 class='rank-text'>#{i+1}</h1>
+						</div>
+					{/each}
+				</div>
+				<div class='info-container'>
+					<h2 class='info-title'>Top Songs</h2>
+					{#each songInfo as [song, data], i}
+						<div class='info-box'>
+							<div class='info-text'>
+							<h4 class='info-subject'>{song}</h4>
+							<h4 class='info-subject'>{data.artist}</h4>
+							{#if showPlays}
+								<h4>{data.plays} Plays</h4>
+							{/if}
+							{#if showDuration}
+								<h4>{msToTime(data.time)}</h4>
+							{/if}
+							</div>
+							<h1 class='rank-text'>#{i+1}</h1>
+						</div>
+					{/each}
+				</div>
+			</div>
+		{/if}
 	{/if}
 </div>
 
@@ -225,7 +246,7 @@
 	:global(body){
 		margin: 0;
 		width: 100%;
-		height: 1500px;
+		height: 1000px;
 	}
 	.content {
 		width: 100%;
@@ -371,7 +392,7 @@
 		display: flex;
 		flex-direction: row;
 		justify-content: space-between;
-		width: 90%;
+		width: min(95%, 800px);
 	}
 	.order-button{
 		width: 50px;
@@ -396,5 +417,51 @@
 	}
 	#order-section{
 		width: 100%;
+	}
+	.help-button {
+		background-color: black;
+		height: 22px;
+		border: 1px;
+		border-style: solid;
+		border-color: rgb(30, 215, 96);
+		border-radius: 5px;
+		width: auto;
+		background-color: black;
+		color: rgb(30, 215, 96);
+		margin-left: 5px;
+		font-weight: 1000;
+	}
+	.exit-help {
+		background-color: black;
+		border: 1px;
+		border-style: solid;
+		border-color: rgb(30, 215, 96);
+		border-radius: 5px;
+		width: auto;
+		background-color: black;
+		color: rgb(30, 215, 96);
+		margin-left: 5px;
+		font-weight: 1000;
+		font-size: xx-large;
+		position: absolute;
+		top: 5px;
+		right: 5px;
+		padding-top: -5px;
+		padding-bottom: 5px;
+		padding-left: 9px;
+		padding-right: 9px;
+		margin: 0;
+	}
+	.help-box{
+		height: auto;
+		width: min(500px, 90%);
+		border: 2px;
+		border-style: solid;
+		border-color: rgb(30, 215, 96);
+		border-radius: 10px;
+		background-color: rgb(53, 53, 53);
+		padding: 10px;
+		margin: 5px;
+		position: relative;
 	}
 </style>
